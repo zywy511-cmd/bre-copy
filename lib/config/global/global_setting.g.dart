@@ -49,7 +49,7 @@ _GlobalSettingState _$GlobalSettingStateFromJson(
   retryDownloadUntilSuccess: json['retryDownloadUntilSuccess'] as bool? ?? true,
   autoFollowOnCollect: json['autoFollowOnCollect'] as bool? ?? false,
   autoCloudCollectOnLocalFavorite:
-      json['autoCloudCollectOnLocalFavorite'] as bool? ?? false,
+      json['autoCloudCollectOnLocalFavorite'] as bool? ?? true,
   leftHandModeEnabled: json['leftHandModeEnabled'] as bool? ?? false,
   clickCoverToStartReading: json['clickCoverToStartReading'] as bool? ?? false,
   searchHistory:

@@ -140,10 +140,21 @@ class _DiscoverView extends StatelessWidget {
     );
   }
 
+  /// 插件商店需要口令才能进入。
+  Future<void> _openPluginStore(BuildContext context) async {
+    final unlocked = await showDialog<bool>(
+      context: context,
+      builder: (_) => const _PluginStorePasswordDialog(),
+    );
+    if (unlocked == true && context.mounted) {
+      context.pushRoute(const PluginStoreRoute());
+    }
+  }
+
   Widget _buildPluginStoreButton(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
-      onTap: () => context.pushRoute(const PluginStoreRoute()),
+      onTap: () => _openPluginStore(context),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
@@ -232,6 +243,71 @@ class _DiscoverView extends StatelessWidget {
         searchState: SearchStates.initial().copyWith(from: source),
         aggregateMode: true,
       ),
+    );
+  }
+}
+
+/// 进入插件商店前的口令弹窗。
+class _PluginStorePasswordDialog extends StatefulWidget {
+  const _PluginStorePasswordDialog();
+
+  @override
+  State<_PluginStorePasswordDialog> createState() =>
+      _PluginStorePasswordDialogState();
+}
+
+class _PluginStorePasswordDialogState
+    extends State<_PluginStorePasswordDialog> {
+  static const String _password = '333';
+
+  final TextEditingController _controller = TextEditingController();
+  bool _hasError = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_controller.text.trim() == _password) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+    setState(() => _hasError = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(t.discover.pluginStore),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        obscureText: true,
+        keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.done,
+        decoration: InputDecoration(
+          labelText: '访问密码',
+          errorText: _hasError ? '密码错误' : null,
+        ),
+        onChanged: (_) {
+          if (_hasError) {
+            setState(() => _hasError = false);
+          }
+        },
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(t.common.cancel),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: Text(t.common.confirm),
+        ),
+      ],
     );
   }
 }

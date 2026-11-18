@@ -158,7 +158,7 @@ abstract class GlobalSettingState with _$GlobalSettingState {
     @Default(true) bool updateAccelerate,
     @Default(true) bool retryDownloadUntilSuccess,
     @Default(false) bool autoFollowOnCollect,
-    @Default(false) bool autoCloudCollectOnLocalFavorite,
+    @Default(true) bool autoCloudCollectOnLocalFavorite,
     @Default(false) bool leftHandModeEnabled,
     @Default(false) bool clickCoverToStartReading,
     @Default([]) List<String> searchHistory,

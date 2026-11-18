@@ -324,9 +324,10 @@ class _NavigationBarState extends State<NavigationBar> {
   }
 
   /// 当前可见 tab 的规范序号列表，顺序与页面列表一致。
-  /// 云收藏（序号 1）不再作为导航栏 tab，入口已移到书架顶部，这里固定排除。
+  /// 云收藏（序号 1）与发现（序号 3）不再作为导航栏 tab：
+  /// 云收藏入口在书架顶部，发现入口在「更多」页里。
   List<int> _visibleBaseIndexes(GlobalSettingState state) {
-    return [if (state.showPluginHome) 0, 2, 3, 4];
+    return [if (state.showPluginHome) 0, 2, 4];
   }
 
   List<T> _pickVisible<T>(GlobalSettingState state, List<T> all) {

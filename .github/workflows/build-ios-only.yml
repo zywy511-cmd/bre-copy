@@ -19,7 +19,8 @@ env:
 
 jobs:
   build-ios:
-    runs-on: macos-14
+    # macos-14 已于 2026-11-02 退役，用更轻的 macos-15 arm64 池子
+    runs-on: macos-15
     env:
       CARGO_HOME: ${{ github.workspace }}/.cargo
       RUSTUP_HOME: ${{ github.workspace }}/.rustup

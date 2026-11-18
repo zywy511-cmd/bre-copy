@@ -16,32 +16,13 @@ class MorePage extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 768),
             child: ListView(
               children: [
-                const SizedBox(height: 24),
-                _buildHeader(context),
+                const SizedBox(height: 8),
                 const SettingsWidget(),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Image.asset('asset/image/app-icon.png', width: 88, height: 88),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Breeze',
-          style: Theme.of(context).textTheme.headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-      ],
     );
   }
 }

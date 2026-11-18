@@ -61,35 +61,18 @@ class ComicParticularsWidget extends StatelessWidget {
             type: type,
             onContinueRead: onContinueRead,
           );
-
-          if (compact) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  child: Cover(
-                    pictureInfo: pictureInfo,
-                    height: 220,
-                    borderRadius: 14,
-                    onTap: onCoverTap,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                info,
-              ],
-            );
-          }
-
+          // 封面固定靠左，右侧显示漫画名与状态/章节/热度等信息；
+          // 窄屏把封面收小，保证右侧文字区有足够宽度。
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Cover(
                 pictureInfo: pictureInfo,
-                height: 230,
+                height: compact ? 165 : 230,
                 borderRadius: 14,
                 onTap: onCoverTap,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: compact ? 14 : 16),
               Expanded(child: info),
             ],
           );

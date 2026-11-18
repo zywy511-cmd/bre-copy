@@ -21,7 +21,7 @@ _GlobalSettingState _$GlobalSettingStateFromJson(
   locale: json['locale'] == null
       ? const Locale('zh', 'CN')
       : const LocaleConverter().fromJson(json['locale'] as String),
-  localeFollowsSystem: json['localeFollowsSystem'] as bool? ?? true,
+  localeFollowsSystem: json['localeFollowsSystem'] as bool? ?? false,
   welcomePageNum: (json['welcomePageNum'] as num?)?.toInt() ?? 0,
   showPluginHome: json['showPluginHome'] as bool? ?? true,
   showPluginCloudFavorite: json['showPluginCloudFavorite'] as bool? ?? true,
@@ -342,8 +342,8 @@ _ReadSettingState _$ReadSettingStateFromJson(Map<String, dynamic> json) =>
           (json['autoScrollPageIntervalMs'] as num?)?.toInt() ?? 3000,
       autoScrollColumnDistancePercent:
           (json['autoScrollColumnDistancePercent'] as num?)?.toInt() ?? 72,
-      preloadImageCount: (json['preloadImageCount'] as num?)?.toInt() ?? 3,
-      preloadChapterCount: (json['preloadChapterCount'] as num?)?.toInt() ?? 1,
+      preloadImageCount: (json['preloadImageCount'] as num?)?.toInt() ?? 8,
+      preloadChapterCount: (json['preloadChapterCount'] as num?)?.toInt() ?? 2,
       landscapeReader: json['landscapeReader'] as bool? ?? false,
       showStatusBar: json['showStatusBar'] as bool? ?? false,
       autoDoublePageInLandscape:

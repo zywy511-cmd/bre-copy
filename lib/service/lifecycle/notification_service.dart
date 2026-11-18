@@ -67,23 +67,17 @@ Future<void> initializeNotifications() async {
         showErrorToast(t.notification.macPermissionRequired);
       }
     } else if (Platform.isIOS) {
-      final bool? granted = await flutterLocalNotificationsPlugin
+      // 只请求系统权限，不再额外弹「请开启通知权限」提示。
+      await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin
           >()
           ?.requestPermissions(alert: true, badge: true, sound: true);
-      if (granted != true) {
-        showErrorToast(t.notification.permissionRequired);
-      }
     } else if (Platform.isAndroid) {
-      final status = await Permission.notification.request();
-      if (!status.isGranted) {
-        showErrorToast(t.notification.permissionRequired);
-      }
+      await Permission.notification.request();
     }
   } catch (e, stackTrace) {
     // 用户取消权限弹窗、系统拒绝等属于预期情况，不应作为未捕获异常上报。
     logger.w('权限请求异常', error: e, stackTrace: stackTrace);
-    showErrorToast(t.notification.permissionRequired);
   }
 }

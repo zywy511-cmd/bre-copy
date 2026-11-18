@@ -25,9 +25,9 @@ class _AppBehaviorSettingPageState extends State<AppBehaviorSettingPage> {
   DesktopCloseBehavior _desktopCloseBehavior = DesktopCloseBehavior.ask;
 
   List<String> _splashPageList(GlobalSettingState state) {
+    // 云收藏已从导航栏移除（入口在书架顶部），不再作为开屏页选项。
     return [
       if (state.showPluginHome) t.navigation.home,
-      if (state.showPluginCloudFavorite) t.oldHome.cloudFavorite,
       t.navigation.bookshelf,
       t.navigation.discover,
       t.navigation.more,
@@ -36,13 +36,7 @@ class _AppBehaviorSettingPageState extends State<AppBehaviorSettingPage> {
 
   Map<String, int> _splashPageMap(GlobalSettingState state) {
     final labels = _splashPageList(state);
-    final visibleBaseIndexes = [
-      if (state.showPluginHome) 0,
-      if (state.showPluginCloudFavorite) 1,
-      2,
-      3,
-      4,
-    ];
+    final visibleBaseIndexes = [if (state.showPluginHome) 0, 2, 3, 4];
     assert(labels.length == visibleBaseIndexes.length);
     return {
       for (var i = 0; i < labels.length; i++) labels[i]: visibleBaseIndexes[i],

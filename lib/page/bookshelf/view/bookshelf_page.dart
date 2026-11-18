@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:zephyr/config/global/global_setting.dart';
+import 'package:zephyr/config/router/router.gr.dart' show PluginCloudFavoriteRoute;
 import 'package:zephyr/cubit/plugin_registry_cubit.dart';
 import 'package:zephyr/i18n/strings.g.dart';
 import 'package:zephyr/page/bookshelf/bookshelf.dart';
@@ -220,8 +221,12 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
 
     return Row(
       children: [
-        _buildSleekTabs(),
-        const Spacer(),
+        Flexible(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: _buildSleekTabs(),
+          ),
+        ),
         IconButton(icon: const Icon(Icons.search), onPressed: _expandSearch),
         IconButton(
           tooltip: t.bookshelf.filter,
@@ -233,6 +238,60 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
   }
 
   Widget _buildSleekTabs() {
+    // 云收藏不再是底部导航栏 tab，入口挪到「收藏/历史/下载」这一排的左侧；
+    // 仍受「显示云收藏」开关控制。
+    final showCloudFavorite = context
+        .watch<GlobalSettingCubit>()
+        .state
+        .showPluginCloudFavorite;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showCloudFavorite) ...[
+          _buildCloudFavoriteEntry(),
+          const SizedBox(width: 6),
+        ],
+        _buildShelfTabs(),
+      ],
+    );
+  }
+
+  Widget _buildCloudFavoriteEntry() {
+    return Material(
+      color: context.theme.colorScheme.surfaceContainerHighest.withValues(
+        alpha: 0.5,
+      ),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => context.pushRoute(PluginCloudFavoriteRoute()),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.cloud_outlined,
+                size: 16,
+                color: context.textColor.withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                t.oldHome.cloudFavorite,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: context.textColor.withValues(alpha: 0.6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShelfTabs() {
     return Container(
       decoration: BoxDecoration(
         color: context.theme.colorScheme.surfaceContainerHighest.withValues(

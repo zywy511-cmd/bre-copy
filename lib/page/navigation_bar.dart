@@ -15,7 +15,6 @@ import 'package:zephyr/service/download/download_queue_manager.dart';
 import 'package:zephyr/page/comic_follow/cubit/comic_follow_cubit.dart';
 import 'package:zephyr/service/lifecycle/foreground_task/foreground_task_service.dart';
 import 'package:zephyr/service/lifecycle/notification_service.dart';
-import 'package:zephyr/service/update/check_update.dart';
 import 'package:zephyr/util/context/context_extensions.dart';
 import 'package:zephyr/util/error_filter.dart';
 import 'package:zephyr/util/manage_cache.dart';
@@ -61,7 +60,6 @@ class _NavigationBarState extends State<NavigationBar> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      checkUpdate(context);
       _autoSync();
       manageCacheSize(context);
       DownloadQueueManager.instance.resetStuckTasks();
@@ -326,14 +324,9 @@ class _NavigationBarState extends State<NavigationBar> {
   }
 
   /// 当前可见 tab 的规范序号列表，顺序与页面列表一致。
+  /// 云收藏（序号 1）不再作为导航栏 tab，入口已移到书架顶部，这里固定排除。
   List<int> _visibleBaseIndexes(GlobalSettingState state) {
-    return [
-      if (state.showPluginHome) 0,
-      if (state.showPluginCloudFavorite) 1,
-      2,
-      3,
-      4,
-    ];
+    return [if (state.showPluginHome) 0, 2, 3, 4];
   }
 
   List<T> _pickVisible<T>(GlobalSettingState state, List<T> all) {

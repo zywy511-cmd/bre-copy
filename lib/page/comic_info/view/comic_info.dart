@@ -9,7 +9,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:zephyr/config/global/global_setting.dart';
-import 'package:zephyr/config/router/router.dart';
 import 'package:zephyr/config/router/router.gr.dart' show ComicEditRoute;
 import 'package:zephyr/cubit/string_select.dart';
 import 'package:zephyr/i18n/strings.g.dart';
@@ -227,28 +226,6 @@ class _ComicInfoState extends State<_ComicInfo>
           onPressed: () => context.pop(),
         ),
         actions: [
-          const SizedBox(width: 50),
-          IconButton(
-            icon: const Icon(Icons.home),
-            onPressed: () => popToRoot(context),
-          ),
-          Expanded(child: Container()),
-          BlocSelector<ComicFollowCubit, ComicFollowState, bool>(
-            selector: (state) => state.isFollowing(widget.from, _comicId),
-            builder: (context, isFollowing) {
-              return IconButton(
-                icon: Icon(
-                  isFollowing
-                      ? Icons.notifications_active
-                      : Icons.notifications_none,
-                ),
-                tooltip: isFollowing
-                    ? t.comicInfo.unfollow
-                    : t.comicInfo.follow,
-                onPressed: () => _toggleFollow(isFollowing),
-              );
-            },
-          ),
           FluentPopupMenuButton<MenuOption>(
             icon: const Icon(Icons.more_vert),
             onSelected: (MenuOption item) {

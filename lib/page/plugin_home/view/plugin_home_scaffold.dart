@@ -23,11 +23,16 @@ class PluginHomeScaffold extends StatefulWidget {
     required this.pageTitle,
     required this.selectorTitle,
     required this.createCubit,
+    this.embedded = false,
   });
 
   final String pageTitle;
   final String selectorTitle;
   final PluginHomeCubit Function() createCubit;
+
+  /// 内嵌模式：不渲染自己的 Scaffold / AppBar / 悬浮按钮，只输出内容区，
+  /// 供书架等页面把它当作一个标签页内容使用。
+  final bool embedded;
 
   @override
   State<PluginHomeScaffold> createState() => _PluginHomeScaffoldState();
@@ -145,6 +150,9 @@ class _PluginHomeScaffoldState extends State<PluginHomeScaffold>
             previous.reloadSignal != current.reloadSignal,
         listener: (context, state) => _syncSceneCubits(state),
         builder: (context, state) {
+          if (widget.embedded) {
+            return _buildBody(context, state);
+          }
           final bundle = state.bundle;
           final tabs = bundle?.tabs ?? const <PluginHomeTab>[];
           final activeIndex = tabs.isEmpty

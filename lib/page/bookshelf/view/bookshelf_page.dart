@@ -3,10 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:zephyr/config/global/global_setting.dart';
-import 'package:zephyr/config/router/router.gr.dart' show PluginCloudFavoriteRoute;
 import 'package:zephyr/cubit/plugin_registry_cubit.dart';
 import 'package:zephyr/i18n/strings.g.dart';
 import 'package:zephyr/page/bookshelf/bookshelf.dart';
+import 'package:zephyr/page/plugin_home/view/plugin_home_pages.dart';
 import 'package:zephyr/page/search/widget/search_input_dialog.dart';
 import 'package:zephyr/plugin/plugin_registry_service.dart';
 import 'package:zephyr/util/context/context_extensions.dart';
@@ -62,15 +62,23 @@ class _BookshelfPageContent extends StatefulWidget {
 
 class _BookshelfPageContentState extends State<_BookshelfPageContent>
     with SingleTickerProviderStateMixin {
+  // 标签顺序：收藏 / 云收藏 / 历史 / 下载。云收藏是内嵌的插件页，不是书架模式。
   late final List<String> _labels = [
     t.bookshelf.favorite,
+    t.oldHome.cloudFavorite,
     t.bookshelf.history,
     t.bookshelf.download,
   ];
 
+  /// 云收藏标签页的固定下标。
+  static const int _cloudFavoriteIndex = 1;
+
+  /// 当前是否停在云收藏标签页（该页不参与书架搜索/筛选）。
+  bool get _isCloudFavoriteTab => _currentIndex == _cloudFavoriteIndex;
+
   late int _currentIndex;
   late final TabController _tabController;
-  final List<int> _refreshSignals = [0, 0, 0];
+  final List<int> _refreshSignals = [0, 0, 0, 0];
   final FocusNode _searchFocusNode = FocusNode();
   // 关键词防抖：短时间内连续输入只保留最后一次，停顿后才真正写入过滤；
   // 回车提交走 onSubmitted 立即生效，不经过这里。
@@ -125,15 +133,16 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
               refreshSignal: _refreshSignals[0],
               isActive: _currentIndex == 0,
             ),
+            const PluginCloudFavoritePage(embedded: true),
             FolderShelfPage(
               mode: ShelfPageMode.history,
-              refreshSignal: _refreshSignals[1],
-              isActive: _currentIndex == 1,
+              refreshSignal: _refreshSignals[2],
+              isActive: _currentIndex == 2,
             ),
             FolderShelfPage(
               mode: ShelfPageMode.download,
-              refreshSignal: _refreshSignals[2],
-              isActive: _currentIndex == 2,
+              refreshSignal: _refreshSignals[3],
+              isActive: _currentIndex == 3,
             ),
           ],
         ),
@@ -147,23 +156,25 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
         _buildSleekTabs(),
         const SizedBox(width: 24),
         Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Flexible(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: _buildShelfSearchField(autoExpand: false),
+          child: _isCloudFavoriteTab
+              ? const SizedBox.shrink()
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        child: _buildShelfSearchField(autoExpand: false),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      tooltip: t.bookshelf.filter,
+                      icon: const Icon(Icons.tune),
+                      onPressed: _openFilter,
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                tooltip: t.bookshelf.filter,
-                icon: const Icon(Icons.tune),
-                onPressed: _openFilter,
-              ),
-            ],
-          ),
         ),
       ],
     );
@@ -210,11 +221,12 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
             onPressed: _exitSearch,
           ),
           Expanded(child: _buildShelfSearchField(autoExpand: true)),
-          IconButton(
-            tooltip: t.bookshelf.filter,
-            icon: const Icon(Icons.tune),
-            onPressed: _openFilterFromSearch,
-          ),
+          if (!_isCloudFavoriteTab)
+            IconButton(
+              tooltip: t.bookshelf.filter,
+              icon: const Icon(Icons.tune),
+              onPressed: _openFilterFromSearch,
+            ),
         ],
       );
     }
@@ -227,71 +239,19 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
             child: _buildSleekTabs(),
           ),
         ),
-        IconButton(icon: const Icon(Icons.search), onPressed: _expandSearch),
-        IconButton(
-          tooltip: t.bookshelf.filter,
-          icon: const Icon(Icons.tune),
-          onPressed: _openFilter,
-        ),
+        if (!_isCloudFavoriteTab) ...[
+          IconButton(icon: const Icon(Icons.search), onPressed: _expandSearch),
+          IconButton(
+            tooltip: t.bookshelf.filter,
+            icon: const Icon(Icons.tune),
+            onPressed: _openFilter,
+          ),
+        ],
       ],
     );
   }
 
   Widget _buildSleekTabs() {
-    // 云收藏不再是底部导航栏 tab，入口挪到「收藏/历史/下载」这一排的左侧；
-    // 仍受「显示云收藏」开关控制。
-    final showCloudFavorite = context
-        .watch<GlobalSettingCubit>()
-        .state
-        .showPluginCloudFavorite;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (showCloudFavorite) ...[
-          _buildCloudFavoriteEntry(),
-          const SizedBox(width: 6),
-        ],
-        _buildShelfTabs(),
-      ],
-    );
-  }
-
-  Widget _buildCloudFavoriteEntry() {
-    return Material(
-      color: context.theme.colorScheme.surfaceContainerHighest.withValues(
-        alpha: 0.5,
-      ),
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () => context.pushRoute(PluginCloudFavoriteRoute()),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.cloud_outlined,
-                size: 16,
-                color: context.textColor.withValues(alpha: 0.6),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                t.oldHome.cloudFavorite,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: context.textColor.withValues(alpha: 0.6),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShelfTabs() {
     return Container(
       decoration: BoxDecoration(
         color: context.theme.colorScheme.surfaceContainerHighest.withValues(
@@ -309,7 +269,7 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               curve: Curves.easeOutCubic,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected
                     ? context.theme.colorScheme.surface
@@ -415,9 +375,8 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
 
   ShelfPageMode _currentMode() {
     return switch (_currentIndex) {
-      0 => ShelfPageMode.favorite,
-      1 => ShelfPageMode.history,
-      2 => ShelfPageMode.download,
+      2 => ShelfPageMode.history,
+      3 => ShelfPageMode.download,
       _ => ShelfPageMode.favorite,
     };
   }
@@ -450,6 +409,7 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
   }
 
   void _triggerRefresh({bool goTop = false}) {
+    if (_isCloudFavoriteTab) return;
     setState(() {
       _refreshSignals[_currentIndex] = _refreshSignals[_currentIndex] + 1;
     });
@@ -460,7 +420,9 @@ class _BookshelfPageContentState extends State<_BookshelfPageContent>
       return;
     }
     setState(() {
+      // 云收藏（下标 1）是插件页，不使用 refreshSignal，跳过。
       for (var i = 0; i < _refreshSignals.length; i++) {
+        if (i == _cloudFavoriteIndex) continue;
         _refreshSignals[i] = _refreshSignals[i] + 1;
       }
     });

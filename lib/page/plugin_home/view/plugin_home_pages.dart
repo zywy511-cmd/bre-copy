@@ -33,7 +33,10 @@ class PluginHomePage extends StatelessWidget {
 /// 记忆 key 为 `cloudFavoritePluginId`。
 @RoutePage()
 class PluginCloudFavoritePage extends StatelessWidget {
-  const PluginCloudFavoritePage({super.key});
+  const PluginCloudFavoritePage({super.key, this.embedded = false});
+
+  /// 内嵌模式：见 [PluginHomeScaffold.embedded]，书架把它当作一个标签页内容。
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +44,7 @@ class PluginCloudFavoritePage extends StatelessWidget {
     return PluginHomeScaffold(
       pageTitle: t.oldHome.cloudFavorite,
       selectorTitle: t.oldHome.cloudFavorite,
+      embedded: embedded,
       createCubit: () => PluginHomeCubit(
         bundleFnPath: 'getPluginCloudFavoritePagesBundle',
         capabilityFlag: 'haveCloudFavorite',

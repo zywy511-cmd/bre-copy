@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zephyr/config/router/router.gr.dart';
 import 'package:zephyr/i18n/strings.g.dart';
 import 'package:zephyr/page/comic_follow/cubit/comic_follow_cubit.dart';
+import 'package:zephyr/plugin/builtin_plugin_service.dart';
 
 class SettingsWidget extends StatelessWidget {
   const SettingsWidget({super.key});
@@ -14,6 +15,14 @@ class SettingsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        ListTile(
+          leading: const Icon(Icons.account_circle_outlined),
+          title: const Text('拷贝漫画账号'),
+          subtitle: const Text('登录 / 注册'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () =>
+              context.pushRoute(LoginRoute(from: kBuiltinCopy4000Uuid)),
+        ),
         _buildSectionTitle(context, t.more.common, Icons.widgets_outlined),
         ListTile(
           leading: const Icon(Icons.download_outlined),

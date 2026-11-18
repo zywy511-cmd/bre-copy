@@ -183,5 +183,4 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#ffffff"
-  image: "macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png"
   fullscreen: true

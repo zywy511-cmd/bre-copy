@@ -473,6 +473,17 @@ class _ComicInfoState extends State<_ComicInfo>
                                   widget.from,
                                 )
                               : null,
+                        ),
+                        _buildDivider(context),
+                        ComicOperationWidget(
+                          normalInfo: normalComicAllInfo,
+                          from: widget.from,
+                          collectionTargetId: widget.collectionTargetId,
+                          collectionTargetName: widget.collectionTargetName,
+                          comicInfo: comicInfoDyn,
+                        ),
+                        // 阅读记录卡片放在操作按钮（点赞/评论/收藏/云收藏/上分）下方。
+                        ComicReadHistoryBanner(
                           onContinueRead: hasHistory
                               ? () => goToComicRead(
                                   context,
@@ -482,14 +493,6 @@ class _ComicInfoState extends State<_ComicInfo>
                                   widget.from,
                                 )
                               : null,
-                        ),
-                        _buildDivider(context),
-                        ComicOperationWidget(
-                          normalInfo: normalComicAllInfo,
-                          from: widget.from,
-                          collectionTargetId: widget.collectionTargetId,
-                          collectionTargetName: widget.collectionTargetName,
-                          comicInfo: comicInfoDyn,
                         ),
                         if (comicInfo.metadata.isNotEmpty ||
                             comicInfo.description.trim().isNotEmpty) ...[
@@ -513,25 +516,6 @@ class _ComicInfoState extends State<_ComicInfo>
                                     ),
                                   ),
                               ],
-                            ),
-                          ),
-                        ],
-                        if (comicInfo.creator.name.trim().isNotEmpty ||
-                            comicInfo.creator.avatar.url.trim().isNotEmpty) ...[
-                          _buildDivider(context),
-                          _SectionCard(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 460,
-                                ),
-                                child: CreatorInfoWidget(
-                                  creator: comicInfo.creator,
-                                  from: widget.from,
-                                  imageKey: comicInfo.id,
-                                ),
-                              ),
                             ),
                           ),
                         ],

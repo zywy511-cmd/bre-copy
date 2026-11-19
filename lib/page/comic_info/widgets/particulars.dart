@@ -27,7 +27,6 @@ class ComicParticularsWidget extends StatelessWidget {
   final ComicInfo comicInfo;
   final String from;
   final ComicEntryType type;
-  final VoidCallback? onContinueRead;
   final VoidCallback? onCoverTap;
 
   const ComicParticularsWidget({
@@ -35,7 +34,6 @@ class ComicParticularsWidget extends StatelessWidget {
     required this.comicInfo,
     required this.from,
     required this.type,
-    this.onContinueRead,
     this.onCoverTap,
   });
 
@@ -59,7 +57,6 @@ class ComicParticularsWidget extends StatelessWidget {
             comicInfo: comicInfo,
             from: from,
             type: type,
-            onContinueRead: onContinueRead,
           );
           // 封面固定靠左，右侧显示漫画名与状态/章节/热度等信息；
           // 窄屏把封面收小，保证右侧文字区有足够宽度。
@@ -87,13 +84,11 @@ class _InfoColumn extends StatefulWidget {
     required this.comicInfo,
     required this.from,
     required this.type,
-    required this.onContinueRead,
   });
 
   final ComicInfo comicInfo;
   final String from;
   final ComicEntryType type;
-  final VoidCallback? onContinueRead;
 
   @override
   State<_InfoColumn> createState() => _InfoColumnState();
@@ -302,7 +297,6 @@ class _InfoColumnState extends State<_InfoColumn> {
               .map((item) => _MetaPill(item: item))
               .toList(),
         ),
-        _ContinueReadingBanner(onContinueRead: widget.onContinueRead),
       ],
     );
   }
@@ -316,8 +310,9 @@ class _InfoColumnState extends State<_InfoColumn> {
   }
 }
 
-class _ContinueReadingBanner extends StatelessWidget {
-  const _ContinueReadingBanner({required this.onContinueRead});
+/// 「阅读记录」卡片：单独成一个可复用组件，由详情页放在操作按钮下方。
+class ComicReadHistoryBanner extends StatelessWidget {
+  const ComicReadHistoryBanner({super.key, required this.onContinueRead});
 
   final VoidCallback? onContinueRead;
 
@@ -331,7 +326,7 @@ class _ContinueReadingBanner extends StatelessWidget {
         }
 
         return Padding(
-          padding: const EdgeInsets.only(top: 14),
+          padding: const EdgeInsets.only(top: 14, bottom: 14),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
